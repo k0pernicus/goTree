@@ -31,13 +31,13 @@ func depthOf(s string) int {
 func list(dir string, maxDepth int, dirOnly bool) error {
 	dirDepth := depthOf(dir)
 	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		cDepth := depthOf(path) - (dirDepth + 1)
-		if path == dir || cDepth > maxDepth {
-			return nil
-		}
 		if err != nil {
 			fmt.Printf("prevent panic by handling failure accessing a path: %q: %v\n", dir, err)
 			return err
+		}
+		cDepth := depthOf(path) - (dirDepth + 1)
+		if path == dir || cDepth > maxDepth || (dirOnly && !info.IsDir()) {
+			return nil
 		}
 		for i := 1; i <= cDepth; i++ {
 			fmt.Printf("\t")
@@ -46,9 +46,7 @@ func list(dir string, maxDepth int, dirOnly bool) error {
 			color.Red("|> %+v\n", info.Name())
 			return nil
 		}
-		if !dirOnly {
-			color.Green("|-> %+v\n", info.Name())
-		}
+		color.Green("|-> %+v\n", info.Name())
 		return nil
 	})
 }
