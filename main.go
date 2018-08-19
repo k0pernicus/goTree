@@ -20,6 +20,14 @@ func main() {
 	}
 }
 
+func displayName(i os.FileInfo, isDir bool) {
+	if isDir {
+		color.Red("|> %+v\n", i.Name())
+		return
+	}
+	color.Green("|-> %+v\n", i.Name())
+}
+
 func splitFn(c rune) bool {
 	return c == '/'
 }
@@ -36,17 +44,14 @@ func list(dir string, maxDepth int, dirOnly bool) error {
 			return err
 		}
 		cDepth := depthOf(path) - (dirDepth + 1)
-		if path == dir || cDepth > maxDepth || (dirOnly && !info.IsDir()) {
+		isDir := info.IsDir()
+		if path == dir || cDepth > maxDepth || (dirOnly && !isDir) {
 			return nil
 		}
 		for i := 1; i <= cDepth; i++ {
 			fmt.Printf("\t")
 		}
-		if info.IsDir() {
-			color.Red("|> %+v\n", info.Name())
-			return nil
-		}
-		color.Green("|-> %+v\n", info.Name())
+		displayName(info, isDir)
 		return nil
 	})
 }
